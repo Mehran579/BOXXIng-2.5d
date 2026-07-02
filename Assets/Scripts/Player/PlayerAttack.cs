@@ -26,8 +26,7 @@ public class PlayerAttack : MonoBehaviour
             currentattack++;
 
             if (currentattack > 3)
-                currentattack = 3;
-
+                currentattack = 1;
             animator.SetTrigger("punch" + currentattack);
             cancombo = false;
         }
@@ -50,7 +49,6 @@ public class PlayerAttack : MonoBehaviour
         rightpunchcollider.enabled = false;
         leftpunchcollider.enabled = false;
 
-        if (currentattack >= 3)
             currentattack = 0;
     }
     public void enablerightpunchcollider()

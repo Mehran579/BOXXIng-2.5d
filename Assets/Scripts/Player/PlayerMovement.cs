@@ -15,6 +15,7 @@ public class PlayerMovement : MonoBehaviour
     bool facingright = true;
     bool isturning;
     bool cantmove;
+    bool canjump = true;
     public void Start()
     {
         controller = GetComponent<CharacterController>();
@@ -36,14 +37,22 @@ public class PlayerMovement : MonoBehaviour
     }
     public void OnJump(InputAction.CallbackContext context)       //triggers after getting jump input
     {
-        if (context.performed && controller.isGrounded)
+        if (context.performed && controller.isGrounded && canjump)
         {
-            animator.SetTrigger("jump");                        //actaul jump after animation wind up
+            animator.ResetTrigger("dodge");
+            animator.SetTrigger("jump");                        
+            canjump = false;
         }
     }
-    public void launchplayer()
+    IEnumerator jumpdelay()
+    {
+        yield return new WaitForSeconds(0.5f);
+        canjump = true;
+    }
+    public void launchplayer()              //actaul jump after animation wind up
     {
         verticalvelocity = Mathf.Sqrt(jump * -2f * gravity);
+        StartCoroutine(jumpdelay());   
 
     }
     public void OnTurn(InputAction.CallbackContext context)
@@ -89,8 +98,13 @@ public class PlayerMovement : MonoBehaviour
     }
     public void OnDodge(InputAction.CallbackContext context)
     {
+        if (!canjump) return;
         if (context.performed)
         {
+            animator.ResetTrigger("jump");
+            animator.ResetTrigger("punch1");
+            animator.ResetTrigger("punch2");
+            animator.ResetTrigger("punch3");
             animator.SetTrigger("dodge");
             cantmove = true;
         }
