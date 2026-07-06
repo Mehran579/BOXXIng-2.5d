@@ -11,6 +11,7 @@ public class EnemyManager : MonoBehaviour
     public Collider righthand;
     public Collider lefthand;
     public Collider head;
+    public float knockbackseconds;
     bool busy = true;
     private void Start()
     {
@@ -82,6 +83,7 @@ public class EnemyManager : MonoBehaviour
             if (Vector3.Distance(transform.position, player.transform.position) <= 1f)
                 break;
             Vector3 dir = (player.transform.position - transform.position).normalized;
+            dir.y = -2f;
             controller.Move(dir * Time.deltaTime);
 
             duration -= Time.deltaTime;
@@ -98,7 +100,7 @@ public class EnemyManager : MonoBehaviour
 
     IEnumerator thinkdelay()
     {
-        yield return new WaitForSeconds(UnityEngine.Random.Range(1f, 3f));
+        yield return new WaitForSeconds(UnityEngine.Random.Range(1f, 2f));
         busy = false;
     }
     void facetowardsplayer()
@@ -143,5 +145,9 @@ public class EnemyManager : MonoBehaviour
     public void disablehead()
     {
         head.enabled = false;
+    }
+    public void knockback()
+    {
+        controller.Move(-transform.forward * knockbackseconds);
     }
 }

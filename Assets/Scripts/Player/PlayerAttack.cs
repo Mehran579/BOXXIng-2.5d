@@ -5,11 +5,11 @@ using UnityEngine.InputSystem;
 public class PlayerAttack : MonoBehaviour
 {
     Animator animator;
-    bool cancombo;
-    bool canattack = true;
-    int currentattack = 1;
+    public bool canattack = true;
+    public int currentattack = 1;
     public Collider rightpunchcollider;
     public Collider leftpunchcollider;
+    public PlayerMovement movement;
     public void Start()
     {
         animator = GetComponent<Animator>();
@@ -19,37 +19,27 @@ public class PlayerAttack : MonoBehaviour
 
     public void OnAttack(InputAction.CallbackContext context)
     {
-        if (!context.performed) return;
-
-        if (cancombo)
+        if (!canattack||!context.performed) return;
+        if(movement.input.y == 1)
         {
-            currentattack++;
+            animator.SetTrigger("punch2");
 
-            if (currentattack > 3)
-                currentattack = 1;
-            animator.SetTrigger("punch" + currentattack);
-            cancombo = false;
         }
-        else if (canattack)
+        else if(movement.input.y == -1)
         {
-            currentattack = 1;
-            canattack = false;
-            animator.SetTrigger("punch1");
+            animator.SetTrigger("punch3");
         }
+        else
+        {
+        animator.SetTrigger("punch1");
+        }
+        StartCoroutine(attackcooldown());
     }
-    public void enablecombo()
+    IEnumerator attackcooldown()
     {
-        cancombo = true;
-    }
-
-    public void endattack()
-    {
+        canattack = false;
+        yield return new WaitForSeconds(1.5f);
         canattack = true;
-        cancombo = false;
-        rightpunchcollider.enabled = false;
-        leftpunchcollider.enabled = false;
-
-            currentattack = 0;
     }
     public void enablerightpunchcollider()
     {

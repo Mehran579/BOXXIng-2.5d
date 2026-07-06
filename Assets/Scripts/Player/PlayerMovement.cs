@@ -4,17 +4,21 @@ using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour
 {
+    public PlayerAttack playerAttack;
     public CharacterController controller;
     public Animator animator;
     public Vector3 move;
     public float speed;
     public float jump;
     public float gravity = -9.81f;
+    public Vector2 input;
     float verticalvelocity;
     bool facingright = true;
     bool isturning;
     bool cantmove;
-    bool canjump = true;
+    public bool knockedback;
+    public bool canjump = true;
+    public bool candodge = true;
     public void Start()
     {
         controller = GetComponent<CharacterController>();
@@ -23,7 +27,7 @@ public class PlayerMovement : MonoBehaviour
 
     public void OnMove(InputAction.CallbackContext context)      //reads the right left movement
     {
-        Vector2 input = context.ReadValue<Vector2>();
+        input = context.ReadValue<Vector2>();
         move = new Vector3(speed * input.x, 0, 0);
         if (context.performed)
         {
@@ -36,7 +40,7 @@ public class PlayerMovement : MonoBehaviour
     }
     public void OnJump(InputAction.CallbackContext context)       //triggers after getting jump input
     {
-        if (context.performed && controller.isGrounded && canjump)
+        if (context.performed && controller.isGrounded && canjump && candodge)
         {
             animator.ResetTrigger("dodge");
             animator.SetTrigger("jump");                        
@@ -98,7 +102,7 @@ public class PlayerMovement : MonoBehaviour
     public void OnDodge(InputAction.CallbackContext context)
     {
         if (!canjump) return;
-        if (context.performed)
+        if (context.performed && candodge)
         {
             animator.ResetTrigger("jump");
             animator.ResetTrigger("punch1");
@@ -106,11 +110,32 @@ public class PlayerMovement : MonoBehaviour
             animator.ResetTrigger("punch3");
             animator.SetTrigger("dodge");
             cantmove = true;
+            StartCoroutine(candodgedelay());
         }
+    }
+    IEnumerator candodgedelay()
+    {
+        candodge = false;
+        yield return new WaitForSeconds(1);
+        candodge = true;
     }
     public void enablemovement()
     {
         cantmove = false;
+    }
+    public void disablemovement()
+    {
+        cantmove = true;
+    }
+    public void enableknockback()
+    {
+        cantmove = true;
+        knockedback = true;
+    }
+    public void disableknockback()
+    {
+        cantmove = false;
+        knockedback = false;
     }
     public void Update()
     {
